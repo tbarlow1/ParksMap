@@ -1,50 +1,33 @@
-== National Parks backend application
+= Nationalparks backend application
 
-This application is a backend that provides geolocation information about US National Parks. It is a SpringBoot application.
+This application is a SpringBoot backend that provides geolocation information about National Parks worldwide. The information is stored in a MongoDB.
 
-=== Prerequisites
+== Building the application
 
-* The information is stored in a MongoDB. Therefore a MongoDB instance with persistent storage needs to be set up.
-* The following Environment Variables need to be configured:
-** MONGODB_SERVER_HOST
-** MONGODB_SERVER_PORT
-** MONGODB_USER
-** MONGODB_PASSWORD
-** MONGODB_DATABASE
-// * Additional properties:
-// ** db.properties: db.user=${MONGODB_USER}\ndb.password=${MONGODB_PASSWORD}\ndb.name=${MONGODB_DATABASE}
-// ** application.properties: spring.data.mongodb.uri=mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_APPLICATION_NAME}:27017/${MONGODB_DATABASE}
-* After installation the following URL loads the default data:
-** <route_url>/ws/data/load
-* The running service maintains a REST endpoint to be discovered at <route_url>/ws/info/
-* There is a health check endpoint at <route_url>/healthz
+The application can be built using Maven:
 
-=== Hints
-
-* Use the OpenJDK 1.8 S2I builder image
-* You can set MAVEN_MIRROR_URL as a build environment variable to point to a local artifact repository
-* You may want to set up a post deployment hook to automatically load the data after deployment
-* You may want to create readiness and liveness probes.
-
-=== Additional API Endpoints
-
-* Add:
-+
 [source,bash]
 ----
-curl -i -X POST -H 'Content-Type: application/json' -d '{"name":"nationalparks","displayName":"National Parks","url":"", "center":{"latitude": "0", "longitude":"0"},"zoom":"1"}' http://parksmap.apps.127.0.0.01.xip.io/ws/backends/
+mvn -s ../nexus_settings.xml clean package -Dmaven.test.skip=true
 ----
 
-* Delete:
-+
-[source,bash]
-----
-curl -i -X DELETE -H 'Content-Type: application/json' -d '{"name":"nationalparks","displayName":"National Parks","url":"", "center":{"latitude": "0", "longitude":"0"},"zoom":1}' http://parksmap.apps.127.0.0.01.xip.io/ws/backends/
-----
+This will create a jar file target/nationalparks.jar that can be used in a binary build for OpenShift. The S2I Builder image to use is `redhat-openjdk18-openshift:1.2`.
 
-* List:
-+
-[source,bash]
-----
-curl -i -X GET -H 'Content-Type: application/json'  http://parksmap.apps.127.0.0.1.xip.io/ws/backends/
-----
+== Deploying the Application
+
+The application needs a MongoDB database to store its data. This can be a shared MongoDB database for the entire project since the application stores the data in its own collection `nationalparks`.
+
+Nationalparks expects the MongoDB connection information in the following environment variables:
+
+* DB_HOST=mongodb (Name of the MongoDB Service)
+* DB_PORT=27017 (Port the MongoDB Service is running under)
+* DB_USERNAME=mongodb (Username for the MongoDB database)
+* DB_PASSWORD=mongodb (Password for the user)
+* DB_NAME=parks (Database Name)
+* DB_REPLICASET=rs0 (Name of the Replicaset if MongoDB is deployed as a Stateful Service. Not set for standalone database)
+
+The exposed route to the application needs a label `type=parksmap-backend` for the frontend to dynamically discover the service.
+
+There is an endpoint `/ws/healthz` that returns `OK` when the application is running.
+
+The endpoint `/ws/info` returns some basic information about the service.

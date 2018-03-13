@@ -45,15 +45,15 @@ public class BackendsController implements EndpointRegistrar {
 
     @Autowired
     private DataGatewayController dataGateway;
-    
+
     @Autowired
     private ServiceWatcher serviceWatcher;
-    
+
     @Autowired
     private RouteWatcher routeWatcher;
-    
+
     private Map<String, Backend> registeredBackends = new HashMap<String, Backend>();
-    
+
     /**
      * This method is used to start monitoring for services
      */
@@ -73,12 +73,13 @@ public class BackendsController implements EndpointRegistrar {
         logger.info("Backends.register endpoint at ({})", endpoint);
 
         Backend newBackend = null;
-        
+
         String endpointUrl = routeWatcher.getUrl(endpoint); // try to find a route for endpoint
-        if (endpointUrl == null || endpointUrl.trim().equals("")) { 
+        logger.info("WK: endpointUrl=" + endpointUrl);
+        if (endpointUrl == null || endpointUrl.trim().equals("")) {
         	endpointUrl = serviceWatcher.getUrl(endpoint); // otherwise, find a service for endpoint
         }
-        
+
         // Query for backend data.
         if (endpoint != null) {
         	if ((newBackend = apiGateway.getFromRemote(endpointUrl)) != null) {

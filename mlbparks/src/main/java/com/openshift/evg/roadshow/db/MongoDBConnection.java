@@ -2,6 +2,7 @@ package com.openshift.evg.roadshow.db;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
@@ -22,15 +23,15 @@ import java.util.List;
 public class MongoDBConnection {
 
     private static final String FILENAME = "/mlbparks.json";
+    private static final String COLLECTION = "mlbparks";
 
-    private static final String COLLECTION = "parks";
-
-    // TODO: Get this from a Config file
+    // Get Connection Information from Environment (Config Map)
     String dbHost = System.getenv("DB_HOST");
     String dbPort = System.getenv("DB_PORT");
     String dbUsername = System.getenv("DB_USERNAME");
     String dbPassword = System.getenv("DB_PASSWORD");
     String dbName = System.getenv("DB_NAME");
+    String dbReplicaSet = System.getenv("DB_REPLICASET");
 
     public MongoDatabase connect() {
         System.out.println("[DEBUG] MongoDBConnection.connect()");
@@ -58,8 +59,12 @@ public class MongoDBConnection {
             configError = true;
             System.out.println("[ERROR] DB_NAME environment variable not set");
         }
+        if (dbReplicaSet == null ) {
+            System.out.println("[DEBUG] DB_REPLICASET empty.");
+        }
 
         if (configError) throw new RuntimeException("Error in configuration");
+
         System.out.println("DB_HOST=" + dbHost);
         System.out.println("DB_PORT=" + dbUsername);
         System.out.println("DB_USERNAME=" + dbUsername);
@@ -68,7 +73,18 @@ public class MongoDBConnection {
 
         creds.add(MongoCredential.createCredential(dbUsername, dbName, dbPassword.toCharArray()));
 
-        MongoClient mongoClient = new MongoClient(new ServerAddress(dbHost, Integer.valueOf(dbPort)), creds);
+        MongoClient mongoClient = null;
+        if (dbReplicaSet == null) {
+          // Regular Mongo Database
+          System.out.println("[DEBUG] Connecting to single instance MongoDB.");
+          mongoClient = new MongoClient(new ServerAddress(dbHost, Integer.valueOf(dbPort)), creds);
+        }
+        else {
+          // Replica Set Mongo Database
+          String mongoURI = "mongodb://" + dbUsername + ":" + dbPassword + "@" + dbHost + ":" + dbPort + "/?authSource=" + dbName + "&replicaSet=" + dbReplicaSet;
+          System.out.println("[DEBUG] Connecting to a Replica Set MongoDB: " + mongoURI);
+          mongoClient = new MongoClient(new MongoClientURI(mongoURI));
+        }
         MongoDatabase database = mongoClient.getDatabase(dbName);
 
         return database;

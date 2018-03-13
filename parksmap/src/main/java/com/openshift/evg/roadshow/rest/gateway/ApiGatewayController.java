@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ApiGatewayController{
 
     private static final Logger logger = LoggerFactory.getLogger(ApiGatewayController.class);
-    
+
     private Map<String, BackendServiceRemote> remoteServices = new HashMap<String, BackendServiceRemote>();
 
     /**
@@ -71,7 +71,7 @@ public class ApiGatewayController{
     public Backend getFromLocal(String backendId) {
         BackendServiceRemote backend = null;
         if ((backend = remoteServices.get(backendId))!=null){
-            logger.info("Calling remote service {}", backendId);
+            logger.info("getFromLocal: Calling remote service {}", backendId);
             try {
                 return backend.get();
             } catch (Exception e) {
@@ -88,7 +88,7 @@ public class ApiGatewayController{
      * @return
      */
     public Backend getFromRemote(String remoteURL) {
-        logger.info("Calling remote service at {}", remoteURL);
+        logger.info("getFromRemote: Calling remote service at {}", remoteURL);
         try {
             return Feign.builder().contract(new JAXRSContract()).encoder(new JacksonEncoder())
                     .decoder(new JacksonDecoder())
@@ -100,5 +100,4 @@ public class ApiGatewayController{
         }
         return null;
     }
-
 }

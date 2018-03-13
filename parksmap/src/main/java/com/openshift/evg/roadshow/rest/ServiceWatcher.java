@@ -14,22 +14,26 @@ public class ServiceWatcher extends AbstractResourceWatcher<Service> {
 	private static final Logger logger = LoggerFactory.getLogger(ServiceWatcher.class);
 
 	private static final String PARKSMAP_BACKEND_LABEL = "type=parksmap-backend";
-	
+
 	@Override
 	protected List<Service> listWatchedResources() {
+		logger.info("listWatchedResources()");
 		return getOpenShiftClient().services().inNamespace(getNamespace()).withLabel(PARKSMAP_BACKEND_LABEL).list().getItems();
 	}
 
 	@Override
 	protected Watch doInit() {
-		return getOpenShiftClient().services().inNamespace(getNamespace()).withLabel(PARKSMAP_BACKEND_LABEL).watch(this);
+			logger.info("doInit()");
+			return getOpenShiftClient().services().inNamespace(getNamespace()).withLabel(PARKSMAP_BACKEND_LABEL).watch(this);
 	}
 
 	@Override
 	protected String getUrl(String serviceName) {
+		logger.info("getUrl("+serviceName+")");
 		List<Service> services = getOpenShiftClient().services().inNamespace(getNamespace()).withLabel(PARKSMAP_BACKEND_LABEL)
 				.withField("metadata.name", serviceName).list().getItems();
 		if (services.isEmpty()) {
+			logger.info("services.isEmpty");
 			return null;
 		}
 
@@ -44,7 +48,7 @@ public class ServiceWatcher extends AbstractResourceWatcher<Service> {
 
 		serviceURL = "http://" + serviceName + ":" + port;
 
-		logger.info("[INFO] Computed service URL: {}", serviceURL);
+		logger.info("Computed service URL: {}", serviceURL);
 		return serviceURL;
 	}
 }

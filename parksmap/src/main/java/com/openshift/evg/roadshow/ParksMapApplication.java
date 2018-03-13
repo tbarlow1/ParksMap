@@ -14,5 +14,4 @@ public class ParksMapApplication {
     public static void main(String[] args) {
         SpringApplication.run(ParksMapApplication.class, args);
     }
-
 }
