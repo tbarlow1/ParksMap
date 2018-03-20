@@ -31,3 +31,5 @@ The exposed route to the application needs a label `type=parksmap-backend` for t
 There is an endpoint `/ws/healthz` that returns `OK` when the application is running.
 
 The endpoint `/ws/info` returns some basic information about the service.
+
+The endpoint `/ws/data/load` creates the data in the MongoDB database.
