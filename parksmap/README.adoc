@@ -13,7 +13,6 @@ mvn -s ../nexus_settings.xml clean package spring-boot:repackage -DskipTests -Dc
 
 This will create a jar file target/parksmap.jar that can be used in a binary build for OpenShift. The S2I Builder image to use is `redhat-openjdk18-openshift:1.2`.
 
-
 == Deploying the Application
 
 The application needs permission to dynamically discover the available routes (with label `type=parksmap-backend`) in the project.
@@ -25,8 +24,6 @@ oc policy add-role-to-user view --serviceaccount=default
 
 There is an endpoint `/ws/healthz` that returns `OK` when the application is running.
 
-
-
 === List backend
 
 You can list the backends that the application discovered:
@@ -35,3 +32,9 @@ You can list the backends that the application discovered:
 ----
 curl -i http://<parksmap_route>/ws/backends/list
 ----
+
+== Hints on Blue/Green Deployments
+
+This application does not work well with a route that points to a service with a different name (e.g. route mlbparks and services mlbparks-blue).
+
+There is a workaround to switching the backend routes and that is switching the backend labels. This application looks for a service with label "type=parksmap-backend". So rather than creating a blue/green route it is possible to just set the label for the currently active *backend* service - and remove the label from the inactive service.
