@@ -20,6 +20,9 @@ public class BackendController{
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Backend get() {
-        return new Backend("mlbparks", "MLB Parks", new Coordinates("39.82", "-98.57"), 5);
+      String applicationName = System.getenv("APPNAME");
+      if (applicationName == null) applicationName = "MLB Parks";
+
+        return new Backend("mlbparks", applicationName, new Coordinates("39.82", "-98.57"), 5);
     }
 }

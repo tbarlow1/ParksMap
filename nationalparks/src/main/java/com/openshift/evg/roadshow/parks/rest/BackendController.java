@@ -17,6 +17,8 @@ public class BackendController{
 
     @RequestMapping(method = RequestMethod.GET, value = "/", produces = "application/json")
     public Backend get() {
-        return new Backend("nationalparks","National Parks", new Coordinates("47.039304", "14.505178"), 4);
+      String applicationName = System.getenv("APPNAME");
+      if (applicationName == null) applicationName = "National Parks";
+      return new Backend("nationalparks",applicationName, new Coordinates("47.039304", "14.505178"), 4);
     }
 }

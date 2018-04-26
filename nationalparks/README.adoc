@@ -26,10 +26,14 @@ Nationalparks expects the MongoDB connection information in the following enviro
 * DB_NAME=parks (Database Name)
 * DB_REPLICASET=rs0 (Name of the Replicaset if MongoDB is deployed as a Stateful Service. Not set for standalone database)
 
-The exposed route to the application needs a label `type=parksmap-backend` for the frontend to dynamically discover the service. This label can also be set on the service if there is no route (e.g. for a Blue/Green deployment).
+Nationalparks also understands an environment variable to set the displayed name of the backend (this may be useful for validating that either the blue or green backend service is active):
 
-There is an endpoint `/ws/healthz` that returns `OK` when the application is running.
+* APPNAME="National Parks"
 
-The endpoint `/ws/info` returns some basic information about the service.
+The service to the application needs a label `type=parksmap-backend` for the frontend to dynamically discover the service.
 
-The endpoint `/ws/data/load` creates the data in the MongoDB database.
+There is an endpoint `/ws/healthz/` that returns `OK` when the application is running (trailing "/" is important).
+
+The endpoint `/ws/info/` returns some basic information about the service.
+
+The endpoint `/ws/data/load/` creates the data in the MongoDB database.

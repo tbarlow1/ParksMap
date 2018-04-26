@@ -11,7 +11,7 @@ The application can be built using Maven:
 mvn -s ../nexus_settings.xml clean package -DskipTests=true
 ----
 
-This will create a jar file target/mlbparks.jar that can be used in a binary build for OpenShift. The S2I Builder image to use is `jboss-eap70-openshift:1.6`.
+This will create a jar file target/mlbparks.jar that can be used in a binary build for OpenShift. The S2I Builder image to use is `jboss-eap70-openshift:1.7`.
 
 == Deploying the Application
 
@@ -26,10 +26,14 @@ MLBParks expects the MongoDB connection information in the following environment
 * DB_NAME=parks (Database Name)
 * DB_REPLICASET=rs0 (Name of the Replicaset if MongoDB is deployed as a Stateful Service. Not set for standalone database)
 
-The exposed route to the application needs a label `type=parksmap-backend` for the frontend to dynamically discover the service. This label can also be set on the service if there is no route (e.g. for a Blue/Green deployment)
+MLBParks also understands an environment variable to set the displayed name of the backend (this may be useful for validating that either the blue or green backend service is active):
 
-There is an endpoint `/ws/healthz` that returns `OK` when the application is running.
+* APPNAME="MLB Parks"
 
-The endpoint `/ws/info` returns some basic information about the service.
+The exposed service to the application needs a label `type=parksmap-backend` for the frontend to dynamically discover the service.
 
-The endpoint `/ws/data/load` creates the data in the MongoDB database.
+There is an endpoint `/ws/healthz/` that returns `OK` when the application is running (trailing "/" is important).
+
+The endpoint `/ws/info/` returns some basic information about the service.
+
+The endpoint `/ws/data/load/` creates the data in the MongoDB database.
